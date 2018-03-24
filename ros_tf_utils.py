@@ -5,10 +5,21 @@ from nav_msgs.msg import Odometry
 
 
 def odom_to_mat44(odom):
-    return pose_to_mat44(odom.pose)
+    """
+    Convert odom msg to 4*4 transformation matrix
+    :param odom:
+    :return:
+    """
+    # Be careful Odometry msg contains PoseWithCovariance msg
+    return pose_to_mat44(odom.pose.pose)
 
 
 def pose_to_mat44(pose):
+    """
+    Convert pose msg to 4*4 transformation matrix
+    :param pose:
+    :return:
+    """
     [x, y, z] = [pose.position.x, pose.position.y, pose.position.z]
     trans_mat = transformations.translation_matrix([x, y, z])
 
@@ -19,6 +30,11 @@ def pose_to_mat44(pose):
 
 
 def mat44_to_pose(mat):
+    """
+    Convert 4*4 transformation matrix to pose msg (no header information added)
+    :param mat:
+    :return:
+    """
     trans = Point(*tuple(transformations.translation_from_matrix(mat)))
     rot = Quaternion(*tuple(transformations.quaternion_from_matrix(mat)))
     return Pose(trans, rot)
