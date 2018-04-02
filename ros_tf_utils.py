@@ -2,6 +2,7 @@ import tf.transformations as transformations
 import numpy as np
 from geometry_msgs.msg import Pose, Point, Quaternion
 from nav_msgs.msg import Odometry
+import warnings
 
 
 def odom_to_mat44(odom):
@@ -49,3 +50,24 @@ def quaternion_to_euler(x, y, z, w):
 def euler_to_quaternion(roll, pitch, yaw):
     q = transformations.quaternion_from_euler(roll, pitch, yaw)
     return q[0], q[1], q[2], q[3]
+
+
+def euler_to_mat44(roll, pitch, yaw):
+    warnings.warn('please use this carefully, because the euler angle axis can be very confusing.')
+    return transformations.euler_matrix(roll, pitch, yaw)
+
+
+def enu2rviz(orig_mat):
+    """
+    Take a 4*4 matrix that follows ENU definition and output a matrix that follows RVIZ definition
+    :param orig_mat:
+    :return:
+    """
+    mat = np.identity(4, dtype=np.float64)
+    mat[0][0] = 0.0
+    mat[0][1] = 1.0
+    mat[1][0] = -1.0
+    mat[1][1] = 0.0
+
+    new_mat = mat.dot(orig_mat).dot(np.linalg.inv(mat))
+    return new_mat
